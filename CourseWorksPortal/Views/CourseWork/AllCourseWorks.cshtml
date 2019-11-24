@@ -1,0 +1,41 @@
+﻿@model IEnumerable<CourseWorksPortal.Models.CourseWork>
+@{
+    ViewBag.Title = "Course Works";
+}
+
+<br/>
+
+<div class="row">
+    <div class="col-md-10">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">File name</th>
+                    <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.File_name</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-controller="CourseWork" asp-route-id="@item.Id"><span class="glyphicon glyphicon-eye-open btn-sm"></span></a>
+                            <a asp-action="Edit" asp-controller="CourseWork" asp-route-id="@item.Id" ><span class="glyphicon glyphicon-pencil btn-sm"></span></a>
+                            <a asp-action="Delete" asp-controller="CourseWork" asp-route-id="@item.Id" ><span class="glyphicon glyphicon-trash btn-sm"></span></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a asp-action="Create">
+            <div class="form-group">
+                <input type="submit" value="Add work" class="btn btn-success" />
+            </div>
+        </a>
+    </div>
+
+</div>

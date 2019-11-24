@@ -1,0 +1,42 @@
+﻿@model IEnumerable<CourseWorksPortal.Models.User>
+@{
+    ViewBag.Title = "Users";
+}
+
+<br />
+
+<div class="row">
+    <div class="col-md-9">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Password hash</th>
+                    <th scope="col">Role</th>
+                    <th scope="col" class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Username</td>
+                        <td>@item.Password</td>
+                        <td>@item.Role</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-controller="User" asp-route-id="@item.Id" class="glyphicon glyphicon-pencil btn-sm"></a>
+                            <a asp-action="Delete" asp-controller="User" asp-route-id="@item.Id" method="get" class="glyphicon glyphicon-trash btn-sm"></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <a asp-action="Create">
+            <div class="form-group">
+                <input type="submit" value="Add user" class="btn btn-success" />
+            </div>
+        </a>
+    </div>
+
+</div>

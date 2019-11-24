@@ -1,0 +1,24 @@
+﻿@model CourseWorksPortal.Models.CourseWork
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Course work: "@Model.Name"</h2>
+
+</br>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>File name</dt>
+        <dd>@Model.File_name</dd>
+
+        </br>
+
+        <dt>Description</dt>
+        <dd>
+            <textarea asp-for="Description" class="form-control" readonly></textarea>
+        </dd>
+
+        </br>
+    </dl>
+</div>

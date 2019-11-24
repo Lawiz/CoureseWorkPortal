@@ -1,0 +1,38 @@
+﻿@model CourseWorksPortal.ViewModels.CreateCourseWorkModel
+@{
+    ViewBag.Title = "Edit";
+}
+
+</br>
+
+<form asp-action="Edit" enctype="multipart/form-data" asp-controller="CourseWork" asp-route-id="@Model.Id">
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Name</label>
+        <input type="text" asp-for="Name" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="File" class="control-label">File</label>
+        </br>
+        <input class="hidden" id="file" type="file" name="file" />
+        <input type="button" id="btn" class="btn btn-default" value="Select a file" />
+    </div>
+
+    </br>
+
+    <div class="form-group">
+        <input type="submit" value="Update" class="btn btn-success" />
+    </div>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+<script>$(() => {
+        $('#btn').click(() => {
+            $('#file').trigger('click');
+            $("#btn").prop('value', 'Select a file (uploaded)');
+        });
+    })</script>
