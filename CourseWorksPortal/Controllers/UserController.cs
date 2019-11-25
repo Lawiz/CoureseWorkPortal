@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using CourseWorksPortal.Models;
+using CourseWorksPortal.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,16 +16,24 @@ namespace CourseWorksPortal.Controllers
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class UserController : Controller
     {
-        private AppDbContext db;
+        #region props
+        private AppDbContext _dbContext;
+        private IUserService _userService;
+        #endregion
 
-        public UserController(AppDbContext context)
+        #region ctor
+        public UserController(AppDbContext dbContext, IUserService userService)
         {
-            db = context;
+            _dbContext = dbContext;
+            _userService = userService;
         }
+        #endregion
+
+        #region actions
 
         public async Task<IActionResult> AllUsers()
         {
-            return View(await db.Users.ToListAsync());
+            return View(await _userService.GetAll());
         }
 
         // создание нового юзера
@@ -36,76 +45,38 @@ namespace CourseWorksPortal.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(User user)
         {
-            User dublicate_user = await db.Users.FirstOrDefaultAsync(p => p.Username == user.Username);
-            if (dublicate_user == null)
-            {
-                //pass hashing
-                user.Password = HashingHelper.getHash(user.Username, user.Password);
-
-                db.Users.Add(user);
-                await db.SaveChangesAsync();
+            var res = await _userService.CreateUser(user);
+            if (res.Result)
                 return RedirectToAction("AllUsers");
-            }
-            else return RedirectToAction("Create");
+            return RedirectToAction("Create");
         }
-
-        // редактирование существующего юзера
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id != null)
-            {
-                User user = await db.Users.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-                user.Password = "";
-                if (user != null)
-                    return View(user);
-            }
-            return NotFound();
+            return View(await _userService.GetUserForEdit(id));
         }
-
         [HttpPost]
         public async Task<IActionResult> Edit(User user)
         {
-            User old_user = await db.Users.AsNoTracking().FirstOrDefaultAsync(p => p.Id == user.Id);
-            if (user.Password != null) user.Password = HashingHelper.getHash(user.Username, user.Password);
-            else if (user.Password == null) user.Password = old_user.Password;
-
-            db.Users.Update(user);
-            await db.SaveChangesAsync();
+            ///todo: informationEception
+            var res = _userService.EditUser(user);
             return RedirectToAction("AllUsers");
         }
-
-        // удаление существующего юзера
         [HttpGet]
         [ActionName("Delete")]
         public async Task<IActionResult> ConfirmDelete(int? id)
         {
-            if (id != null)
-            {
-                User user = await db.Users.FirstOrDefaultAsync(p => p.Id == id);
-                if (user != null)
-                {
-                    db.Users.Remove(user);
-                    await db.SaveChangesAsync();
-                    return RedirectToAction("AllUsers");
-                }
-            }
+            if((await _userService.ConfiemDelete(id)).Result)
+                return RedirectToAction("AllUsers");
             return NotFound();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int? id)
+        public async void Delete(int? id)
         {
-            if (id != null)
-            {
-                User user = await db.Users.FirstOrDefaultAsync(p => p.Id == id);
-                if (user != null)
-                {
-                    db.Users.Remove(user);
-                    await db.SaveChangesAsync();
-                    return RedirectToAction("AllUsers");
-                }
-            }
-            return NotFound();
+            await ConfirmDelete(id);
         }
+
+        #endregion
+        
     }
 }

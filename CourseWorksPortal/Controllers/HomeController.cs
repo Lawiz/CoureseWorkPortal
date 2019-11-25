@@ -15,6 +15,11 @@ namespace CourseWorksPortal.Controllers
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class HomeController : Controller
     {
+        AppDbContext _dbContext;
+        public HomeController(AppDbContext dbContext)
+        {
+           
+        }
         [Authorize]
         public IActionResult Index()
         {

@@ -14,14 +14,26 @@ namespace CourseWorksPortal.Controllers
 {
     public class AccountCookieController : Controller
     {
-        private AppDbContext db;
+        private AppDbContext _dbContext;
         private String admin_role = "admin";
 
-        public AccountCookieController(AppDbContext context)
+        public AccountCookieController(AppDbContext dbContext)
         {
-            db = context;
+            _dbContext = dbContext;
         }
-        
+
+        private  void CreateUser(User user)
+        {
+            User dublicate_user = _dbContext.Users.FirstOrDefault(p => p.Username == user.Username);
+            if (dublicate_user == null)
+            {
+                //pass hashing
+                user.Password = HashingHelper.getHash(user.Username, user.Password);
+
+                _dbContext.Users.Add(user);
+                _dbContext.SaveChanges();
+            }
+        }
         [HttpGet]
         public IActionResult Login() => View();
 
@@ -38,7 +50,7 @@ namespace CourseWorksPortal.Controllers
                 }
 
                 model.Password = HashingHelper.getHash(model.Username, model.Password);
-                User user = await db.Users.FirstOrDefaultAsync(u => u.Username == model.Username && u.Password == model.Password && u.Role == admin_role);
+                User user = _dbContext.Users.FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
                 if (user != null)
                 {
                     await Authenticate(model.Username);
@@ -58,14 +70,11 @@ namespace CourseWorksPortal.Controllers
         
         private async Task Authenticate(string userName)
         {
-            // создаем один claim
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, userName)
             };
-            // создаем объект ClaimsIdentity
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            // установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CourseWorksPortal.Extencions;
 using CourseWorksPortal.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -25,10 +26,8 @@ namespace CourseWorksPortal
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // work with database
             string connection = Configuration.GetConnectionString("SqlExpressConnection");
             services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(connection));
@@ -37,31 +36,21 @@ namespace CourseWorksPortal
 
         // work with security
         services.AddAuthentication()
-                //CookieAuthenticationOptions (for web app)
                 .AddCookie(options => 
                 {
                     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/AccountCookie/Login");
                 })
-                //JwtBearerAuthenticationOptions (for client (mobile) app)
                 .AddJwtBearer(options =>
                 {
                     options.RequireHttpsMetadata = false;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        // укзывает, будет ли валидироваться издатель при валидации токена
                         ValidateIssuer = true,
-                        // строка, представляющая издателя
                         ValidIssuer = AuthOptions.ISSUER,
-
-                        // будет ли валидироваться потребитель токена
                         ValidateAudience = true,
-                        // установка потребителя токена
                         ValidAudience = AuthOptions.AUDIENCE,
-                        // будет ли валидироваться время существования
                         ValidateLifetime = true,
-                        // установка ключа безопасности
                         IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
-                        // валидация ключа безопасности
                         ValidateIssuerSigningKey = true,
                     };
                 });
@@ -75,6 +64,7 @@ namespace CourseWorksPortal
             });
 
             services.AddMvc();
+            services.RegistrService();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
